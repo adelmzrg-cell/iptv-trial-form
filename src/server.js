@@ -15,11 +15,13 @@ const TOKEN = process.env.SCRIPT_TOKEN || '';
 const PORT = process.env.PORT || 3000;
 
 // Offres proposees. `paid: true` => passe par la validation manuelle d'Adel.
+// nbr = numero d'option du menu "Temps" du panel (PAS le nombre de mois) :
+// 6=essai 2j, 1=1 mois, 2=3 mois, 3=6 mois, 4=12 mois
 const OFFERS = {
-  trial: { label: 'Essai 2 jours', duration: '2 jours', paid: false },
-  new1: { label: 'Abonnement 1 mois', duration: '1 mois', paid: true },
-  new: { label: 'Abonnement 12 mois', duration: '12 mois', paid: true },
-  renew: { label: 'Renouvellement', duration: '12 mois', paid: true },
+  trial: { label: 'Essai 2 jours', duration: '2 jours', nbr: '6', paid: false },
+  new1: { label: 'Abonnement 1 mois', duration: '1 mois', nbr: '1', paid: true },
+  new: { label: 'Abonnement 12 mois', duration: '12 mois', nbr: '4', paid: true },
+  renew: { label: 'Renouvellement', duration: '12 mois', nbr: '4', paid: true },
 };
 
 // Anti-abus
@@ -80,6 +82,7 @@ app.post('/api/request', (req, res) => {
     login: type === 'renew' ? login : undefined,
     password: type === 'renew' ? password : undefined,
     duration: offer.duration,
+    nbr: offer.nbr,
     paid: offer.paid,
     status: offer.paid ? 'awaiting_approval' : 'pending',
     createdAt: now,
@@ -107,7 +110,7 @@ app.get('/api/pending', requireToken, (_req, res) => {
     if (j.status === 'pending') {
       j.status = 'processing';
       j.processingAt = Date.now();
-      out.push({ id: j.id, type: j.type, pseudo: j.pseudo, duration: j.duration, login: j.login, password: j.password });
+      out.push({ id: j.id, type: j.type, pseudo: j.pseudo, duration: j.duration, nbr: j.nbr, login: j.login, password: j.password });
     }
   }
   res.json({ jobs: out });

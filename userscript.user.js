@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IPTV - Createur de comptes automatique
 // @namespace    iptv-trial-form
-// @version      0.4
+// @version      0.5
 // @description  Cree/renouvelle les comptes (essai + abonnement + renouvellement) demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
 // @match        https://max.myirtv.net/*
 // @grant        GM_xmlhttpRequest
@@ -91,7 +91,7 @@
     const doc = await loadAddForm();
     const password = genPassword();
     const bouquets = getBouquets(doc);
-    const nbr = getNbr(doc, job.duration);
+    const nbr = job.nbr || getNbr(doc, job.duration);
 
     const fd = new FormData();
     fd.append('login', '');
@@ -124,7 +124,11 @@
   async function renewAccount(job) {
     const doc = await loadAddForm();
     const bouquets = getBouquets(doc);
-    const nbr = getNbr(doc, job.duration);
+    const nbr = job.nbr || getNbr(doc, job.duration);
+
+    // On ouvre d'abord la page de la ligne expiree (comme la manip manuelle : etablit le contexte)
+    await fetch(PANEL + '/line/lineexperied/add?login=' + encodeURIComponent(job.login) +
+      '&password=' + encodeURIComponent(job.password) + '&note=', { credentials: 'include' }).catch(() => {});
 
     const fd = new FormData();
     fd.append('login', job.login);
@@ -138,8 +142,10 @@
       method: 'POST', body: fd, credentials: 'include',
       headers: { 'x-requested-with': 'XMLHttpRequest' },
     });
-    const data = await res.json();
-    if (!data || !data.success) throw new Error('renouvellement refuse (identifiant/mdp ?)');
+    const text = await res.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch {}
+    if (!data || !data.success) throw new Error('panel a refuse: ' + (text || 'reponse vide').slice(0, 140));
 
     return { login: job.login, password: job.password, url: CLIENT_URL };
   }
