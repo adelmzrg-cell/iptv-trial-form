@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         IPTV - Createur d'essais automatique
+// @name         IPTV - Createur de comptes automatique
 // @namespace    iptv-trial-form
-// @version      0.1
-// @description  Cree automatiquement les comptes d'essai demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
+// @version      0.2
+// @description  Cree les comptes (essai + abonnement) demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
 // @match        https://max.myirtv.net/*
 // @grant        GM_xmlhttpRequest
 // @connect      *
@@ -15,38 +15,32 @@
   // ======= A CONFIGURER (remplace ces 2 valeurs) =======
   const BACKEND = '__BACKEND__';  // URL de ton serveur, ex: https://essai.tondomaine.fr
   const TOKEN = '__TOKEN__';      // jeton secret, identique a SCRIPT_TOKEN du serveur
-  const POLL_MS = 5000;           // frequence de verification
+  const POLL_MS = 5000;
   // =====================================================
 
   const PANEL = 'https://max.myirtv.net';
-  const TRIAL_NBR = '6';        // "Essai gratuit de 2 jours"
   const CLIENT_URL = 'http://line.vtu726.org:8080';
 
-  // Liste des bouquets (= bouton "Ajouter tout"), capturee sur le panel.
+  // Liste des bouquets (= bouton "Ajouter tout"), capturee sur le panel (secours).
   const ALL_BOUQUETS = ["99","100","98","82","81","91","80","79","78","77","76","75","74","73","72","71","48","85","84","70","69","68","65","64","63","62","61","67","66","83","60","59","50","47","49","89","58","57","51","55","56","88","54","52","53"];
 
-  // ---- petit badge visuel en bas a droite ----
+  // --- badge visuel ---
   const badge = document.createElement('div');
   badge.style.cssText = 'position:fixed;bottom:14px;right:14px;z-index:99999;background:#111827;color:#e5e7eb;border:1px solid #22c55e;border-radius:10px;padding:8px 12px;font:13px system-ui;box-shadow:0 6px 20px rgba(0,0,0,.4)';
-  badge.textContent = '🟢 Auto-essais actif';
-  document.addEventListener('DOMContentLoaded', () => document.body && document.body.appendChild(badge));
-  if (document.body) document.body.appendChild(badge);
-  function setBadge(t) { badge.textContent = t; }
+  badge.textContent = '🟢 Auto-comptes actif';
+  const attach = () => document.body && document.body.appendChild(badge);
+  if (document.body) attach(); else document.addEventListener('DOMContentLoaded', attach);
+  const setBadge = (t) => (badge.textContent = t);
 
-  // ---- appels vers le backend (cross-origin) via GM_xmlhttpRequest ----
+  // --- backend (cross-origin) ---
   function backend(method, path, body) {
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
-        method,
-        url: BACKEND + path,
+        method, url: BACKEND + path,
         headers: { 'Content-Type': 'application/json', 'x-token': TOKEN },
         data: body ? JSON.stringify(body) : undefined,
-        onload: (r) => {
-          try { resolve(JSON.parse(r.responseText)); }
-          catch (_) { resolve({}); }
-        },
-        onerror: reject,
-        ontimeout: reject,
+        onload: (r) => { try { resolve(JSON.parse(r.responseText)); } catch (_) { resolve({}); } },
+        onerror: reject, ontimeout: reject,
       });
     });
   }
@@ -56,60 +50,69 @@
     let s = '';
     const a = crypto.getRandomValues(new Uint8Array(14));
     for (let i = 0; i < 14; i++) s += chars[a[i] % chars.length];
-    return 'a' + s + '7'; // >= 12, avec lettre + chiffre
+    return 'a' + s + '7';
   }
 
-  // Recupere la liste des bouquets depuis la page d'ajout (sinon liste par defaut).
-  async function getBouquets() {
-    try {
-      const html = await (await fetch(PANEL + '/line/line/add', { credentials: 'include' })).text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      // le select source des bouquets (multi) : on prend les valeurs numeriques
-      const selects = [...doc.querySelectorAll('select')];
-      for (const sel of selects) {
-        const vals = [...sel.options].map((o) => o.value).filter((v) => /^\d+$/.test(v));
-        // heuristique : le select des bouquets a beaucoup d'options numeriques
-        if (vals.length >= 10) return vals;
-      }
-    } catch (_) {}
+  // Lit la page d'ajout une fois (bouquets + menu des durees).
+  async function loadAddForm() {
+    const html = await (await fetch(PANEL + '/line/line/add', { credentials: 'include' })).text();
+    return new DOMParser().parseFromString(html, 'text/html');
+  }
+
+  function getBouquets(doc) {
+    for (const sel of doc.querySelectorAll('select')) {
+      const vals = [...sel.options].map((o) => o.value).filter((v) => /^\d+$/.test(v));
+      if (vals.length >= 10) return vals; // le select des bouquets
+    }
     return ALL_BOUQUETS;
   }
 
-  // Cree une ligne d'essai. Renvoie { login, password, url }.
-  async function createTrial() {
+  // Trouve le "nbr" correspondant a une duree (ex: "12 mois", "2 jours") dans le menu Temps.
+  function getNbr(doc, duration) {
+    // le select "Temps" : celui dont les options parlent de mois/jours/credit
+    let temps = null;
+    for (const sel of doc.querySelectorAll('select')) {
+      if ([...sel.options].some((o) => /mois|jour|cr[ée]dit/i.test(o.textContent))) { temps = sel; break; }
+    }
+    const m = String(duration).toLowerCase().match(/(\d+)\s*(mois|jour|an)/);
+    if (temps && m) {
+      for (const o of temps.options) {
+        const t = o.textContent.toLowerCase();
+        if (t.includes(m[1]) && t.includes(m[2])) return o.value;
+      }
+    }
+    if (/2\s*jours/i.test(duration)) return '6'; // secours essai gratuit
+    throw new Error('durée introuvable: ' + duration);
+  }
+
+  async function createAccount(job) {
+    const doc = await loadAddForm();
     const password = genPassword();
-    const bouquets = await getBouquets();
+    const bouquets = getBouquets(doc);
+    const nbr = getNbr(doc, job.duration);
 
     const fd = new FormData();
     fd.append('login', '');
     fd.append('password', password);
-    fd.append('nbr', TRIAL_NBR);
-    fd.append('note', '');
+    fd.append('nbr', nbr);
+    fd.append('note', '@' + (job.pseudo || '') + ' (' + job.duration + ')');
     fd.append('bouquets2', bouquets[0]);
     fd.append('bouquets', JSON.stringify(bouquets));
 
     const res = await fetch(PANEL + '/line/line/insert', {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
+      method: 'POST', body: fd, credentials: 'include',
       headers: { 'x-requested-with': 'XMLHttpRequest' },
     });
     const data = await res.json();
-    if (!data || !data.success || !data.insert_primary_key) {
-      throw new Error('creation refusee par le panel');
-    }
+    if (!data || !data.success || !data.insert_primary_key) throw new Error('creation refusee par le panel');
     const id = data.insert_primary_key;
 
-    // lit l'identifiant genere sur la page d'edition
     let login = '';
     try {
       const ehtml = await (await fetch(PANEL + '/line/line/edit/' + id, { credentials: 'include' })).text();
       const edoc = new DOMParser().parseFromString(ehtml, 'text/html');
       login = (edoc.querySelector('input[name="login"]') || {}).value || '';
-      if (!login) {
-        const m = ehtml.match(/name=["']login["'][^>]*value=["']([^"']+)["']/i);
-        if (m) login = m[1];
-      }
+      if (!login) { const mm = ehtml.match(/name=["']login["'][^>]*value=["']([^"']+)["']/i); if (mm) login = mm[1]; }
     } catch (_) {}
 
     return { login: login.trim(), password, url: CLIENT_URL };
@@ -123,9 +126,9 @@
       const { jobs } = await backend('GET', '/api/pending');
       if (jobs && jobs.length) {
         for (const job of jobs) {
-          setBadge('⏳ Création pour @' + (job.pseudo || '?'));
+          setBadge('⏳ ' + (job.duration || '') + ' pour @' + (job.pseudo || '?'));
           try {
-            const acc = await createTrial();
+            const acc = await createAccount(job);
             await backend('POST', '/api/result', { id: job.id, ...acc });
             setBadge('✅ Créé : ' + (acc.login || 'ok'));
           } catch (e) {
@@ -134,7 +137,7 @@
           }
         }
       } else {
-        setBadge('🟢 Auto-essais actif');
+        setBadge('🟢 Auto-comptes actif');
       }
     } catch (_) {
       setBadge('🔌 Serveur injoignable…');

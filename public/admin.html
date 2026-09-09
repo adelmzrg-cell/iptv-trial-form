@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<meta name="theme-color" content="#000000" />
+<title>Admin — Validations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>" />
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#000; --card:#1c1c1e; --text:#f5f5f7; --muted:#98989d; --accent:#0a84ff;
+    --field:#2c2c2e; --divider:#2c2c2e; --green:#34c759; --red:#ff3b30; --amber:#ff9f0a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100dvh; background:var(--bg); color:var(--text); padding:20px;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif; line-height:1.45;
+    -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:520px; margin:0 auto; }
+  h1 { font-size:24px; font-weight:700; letter-spacing:-0.02em; margin-bottom:4px; }
+  .sub { color:var(--muted); font-size:14px; margin-bottom:20px; }
+  input { width:100%; padding:14px 15px; font-size:16px; color:var(--text); background:var(--card);
+    border:1px solid var(--divider); border-radius:12px; outline:none; font-family:inherit; }
+  .btn { padding:11px 16px; font-size:15px; font-weight:600; border:0; border-radius:980px; cursor:pointer;
+    font-family:inherit; color:#fff; background:var(--accent); }
+  .btn.full { width:100%; margin-top:12px; padding:14px; }
+  .gate { max-width:360px; margin:12vh auto 0; text-align:center; }
+  .gate .icon { font-size:44px; margin-bottom:14px; }
+  .card { background:var(--card); border-radius:16px; padding:16px; margin-bottom:12px; }
+  .card .top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .pseudo { font-size:17px; font-weight:700; letter-spacing:-0.01em; word-break:break-all; }
+  .time { font-size:12px; color:var(--muted); flex:none; }
+  .meta { font-size:13px; color:var(--muted); margin-top:2px; }
+  .tag { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; }
+  .tag.new { background:rgba(255,159,10,.18); color:var(--amber); }
+  .tag.trial { background:rgba(10,132,255,.18); color:var(--accent); }
+  .actions { display:flex; gap:8px; margin-top:12px; }
+  .actions .btn { flex:1; }
+  .btn.approve { background:var(--green); color:#04140a; }
+  .btn.reject { background:var(--field); color:var(--red); }
+  .state { font-size:13px; font-weight:600; margin-top:10px; }
+  .state.done { color:var(--green); } .state.rejected,.state.error { color:var(--red); }
+  .state.processing,.state.pending { color:var(--accent); }
+  .creds { margin-top:10px; background:var(--bg); border:1px solid var(--divider); border-radius:10px; padding:10px 12px; font-size:13px; }
+  .creds div { display:flex; justify-content:space-between; gap:10px; padding:3px 0; }
+  .creds .v { font-weight:700; word-break:break-all; text-align:right; }
+  .empty { color:var(--muted); text-align:center; padding:30px 0; font-size:14px; }
+  .section-title { font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:22px 4px 10px; }
+  .refresh { font-size:12px; color:var(--muted); text-align:center; margin-top:16px; }
+</style>
+</head>
+<body>
+  <!-- Ecran de connexion -->
+  <div class="gate" id="gate">
+    <div class="icon">🔐</div>
+    <h1>Admin</h1>
+    <p class="sub">Colle ton jeton d'accès pour voir les demandes.</p>
+    <input id="token" type="text" placeholder="jeton" autocomplete="off" />
+    <button class="btn full" id="enter">Entrer</button>
+    <p class="sub" id="gate-err" style="color:var(--red);display:none;margin-top:12px">Jeton invalide.</p>
+  </div>
+
+  <!-- Tableau de bord -->
+  <div class="wrap" id="dash" style="display:none">
+    <h1>Validations</h1>
+    <p class="sub">Valide une demande une fois le paiement reçu.</p>
+
+    <div class="section-title">⏳ À valider</div>
+    <div id="awaiting"></div>
+
+    <div class="section-title">🕓 Récent</div>
+    <div id="recent"></div>
+
+    <p class="refresh">Actualisation automatique · <a href="#" id="logout" style="color:var(--accent)">déconnexion</a></p>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let TOKEN = localStorage.getItem('admin_token') || '';
+
+  async function api(path, body) {
+    return fetch(path, {
+      method: body ? 'POST' : 'GET',
+      headers: { 'content-type': 'application/json', 'x-token': TOKEN },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  function fmtTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+  const LABELS = { trial: 'Essai', new: 'Abonnement' };
+  const STATES = { pending: 'En cours…', processing: 'Création en cours…', done: 'Créé ✓', error: 'Échec', rejected: 'Refusée' };
+
+  function credsHtml(j) {
+    if (j.status !== 'done') return '';
+    return `<div class="creds">
+      <div><span>URL</span><span class="v">${j.url || ''}</span></div>
+      <div><span>Identifiant</span><span class="v">${j.login || ''}</span></div>
+      <div><span>Mot de passe</span><span class="v">${j.password || ''}</span></div>
+    </div>`;
+  }
+
+  function cardHtml(j, withActions) {
+    const tag = `<span class="tag ${j.type}">${LABELS[j.type] || j.type} · ${j.duration}</span>`;
+    const actions = withActions ? `<div class="actions">
+        <button class="btn approve" data-approve="${j.id}">✓ Valider</button>
+        <button class="btn reject" data-reject="${j.id}">Refuser</button>
+      </div>` : '';
+    const state = !withActions ? `<div class="state ${j.status}">${STATES[j.status] || j.status}</div>` : '';
+    return `<div class="card">
+      <div class="top"><div class="pseudo">@${j.pseudo || '?'} ${tag}</div><div class="time">${fmtTime(j.createdAt)}</div></div>
+      ${actions}${state}${credsHtml(j)}
+    </div>`;
+  }
+
+  async function refresh() {
+    let res;
+    try { res = await api('/api/admin/jobs'); } catch (_) { return; }
+    if (res.status === 401) return showGate(true);
+    const { jobs } = await res.json();
+    const awaiting = jobs.filter((j) => j.status === 'awaiting_approval');
+    const recent = jobs.filter((j) => j.status !== 'awaiting_approval').slice(0, 20);
+
+    $('awaiting').innerHTML = awaiting.length
+      ? awaiting.map((j) => cardHtml(j, true)).join('')
+      : '<div class="empty">Aucune demande à valider.</div>';
+    $('recent').innerHTML = recent.length
+      ? recent.map((j) => cardHtml(j, false)).join('')
+      : '<div class="empty">Rien pour le moment.</div>';
+  }
+
+  document.addEventListener('click', async (e) => {
+    const a = e.target.closest('[data-approve]'), r = e.target.closest('[data-reject]');
+    if (a) { e.target.disabled = true; await api('/api/admin/approve', { id: a.dataset.approve }); refresh(); }
+    if (r) { e.target.disabled = true; await api('/api/admin/reject', { id: r.dataset.reject }); refresh(); }
+  });
+
+  function showGate(err) {
+    $('dash').style.display = 'none';
+    $('gate').style.display = 'block';
+    $('gate-err').style.display = err ? 'block' : 'none';
+  }
+  function showDash() {
+    $('gate').style.display = 'none';
+    $('dash').style.display = 'block';
+    refresh();
+  }
+
+  $('enter').addEventListener('click', async () => {
+    TOKEN = $('token').value.trim();
+    const res = await api('/api/admin/jobs');
+    if (res.status === 401) return showGate(true);
+    localStorage.setItem('admin_token', TOKEN);
+    showDash();
+  });
+  $('token').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('enter').click(); });
+  $('logout').addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('admin_token'); TOKEN = ''; showGate(false); });
+
+  // Auto-refresh
+  setInterval(() => { if ($('dash').style.display !== 'none') refresh(); }, 4000);
+
+  // Demarrage
+  if (TOKEN) showDash(); else showGate(false);
+</script>
+</body>
+</html>

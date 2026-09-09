@@ -17,7 +17,6 @@
     --accent: #0a84ff;
     --accent-press: #339cff;
     --field: #2c2c2e;
-    --field-border: #3a3a3c;
     --divider: #2c2c2e;
     --shadow: 0 10px 40px rgba(0,0,0,.5);
   }
@@ -32,74 +31,67 @@
   }
   .card {
     width: 100%; max-width: 400px; background: var(--card);
-    border-radius: 24px; padding: 40px 32px; box-shadow: var(--shadow);
-    text-align: center;
+    border-radius: 24px; padding: 40px 32px; box-shadow: var(--shadow); text-align: center;
   }
   .icon {
     width: 68px; height: 68px; margin: 0 auto 24px; border-radius: 18px;
     display: grid; place-items: center; font-size: 36px;
-    background: linear-gradient(160deg, #2a2a2e, #0a0a0c);
-    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    background: linear-gradient(160deg, #2a2a2e, #0a0a0c); box-shadow: 0 8px 24px rgba(0,0,0,.25);
   }
-  h1 {
-    font-size: 30px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.1;
+  h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.1; }
+  .lead { margin-top: 10px; font-size: 17px; color: var(--muted); letter-spacing: -0.01em; }
+
+  .seg { display: flex; gap: 6px; margin-top: 28px; padding: 4px; background: var(--field); border-radius: 14px; }
+  .seg button {
+    flex: 1; border: 0; background: transparent; color: var(--text); cursor: pointer;
+    padding: 10px 6px; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600;
+    letter-spacing: -0.01em; transition: background .15s; line-height: 1.25;
   }
-  .lead {
-    margin-top: 10px; font-size: 17px; color: var(--muted); letter-spacing: -0.01em;
-  }
-  form { margin-top: 30px; text-align: left; }
+  .seg button .s { display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .seg button.active { background: var(--accent); }
+  .seg button.active .s { color: rgba(255,255,255,.85); }
+
+  form { margin-top: 24px; text-align: left; }
   .field-label { font-size: 13px; font-weight: 600; color: var(--muted); margin: 0 4px 8px; letter-spacing: -0.01em; }
   input[type=text] {
     width: 100%; padding: 15px 16px; font-size: 17px; color: var(--text);
     background: var(--field); border: 1px solid transparent; border-radius: 14px;
-    outline: none; transition: border-color .15s, background .15s;
-    font-family: inherit;
+    outline: none; transition: border-color .15s, background .15s; font-family: inherit;
   }
   input[type=text]::placeholder { color: var(--muted); opacity: .7; }
-  input[type=text]:focus { border-color: var(--accent); background: var(--card); }
+  input[type=text]:focus { border-color: var(--accent); background: #202022; }
   .btn {
     width: 100%; margin-top: 22px; padding: 15px 20px; font-size: 17px; font-weight: 600;
     color: #fff; background: var(--accent); border: 0; border-radius: 980px; cursor: pointer;
-    letter-spacing: -0.01em; transition: background .15s, transform .1s, opacity .15s;
-    font-family: inherit;
+    letter-spacing: -0.01em; transition: background .15s, transform .1s, opacity .15s; font-family: inherit;
   }
   .btn:hover { background: var(--accent-press); }
   .btn:active { transform: scale(.985); }
   .btn:disabled { opacity: .5; cursor: default; }
   .btn.secondary { background: var(--field); color: var(--accent); margin-top: 10px; }
-  .btn.secondary:hover { background: var(--divider); }
 
   .status { margin-top: 30px; display: none; }
-  .spinner {
-    width: 30px; height: 30px; margin: 0 auto 16px; border-radius: 50%;
-    border: 3px solid var(--divider); border-top-color: var(--accent);
-    animation: spin .9s linear infinite;
-  }
+  .spinner { width: 30px; height: 30px; margin: 0 auto 16px; border-radius: 50%;
+    border: 3px solid var(--divider); border-top-color: var(--accent); animation: spin .9s linear infinite; }
+  .pending-icon { font-size: 40px; margin-bottom: 10px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .status-text { font-size: 15px; color: var(--muted); }
+  .status-title { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
 
   .result { margin-top: 30px; display: none; text-align: left; }
   .result-head { text-align: center; margin-bottom: 22px; }
-  .check {
-    width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 50%;
-    background: #34c759; display: grid; place-items: center; color: #fff; font-size: 28px;
-  }
+  .check { width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 50%;
+    background: #34c759; display: grid; place-items: center; color: #fff; font-size: 28px; }
   .result-head .t { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
   .list { border: 1px solid var(--divider); border-radius: 16px; overflow: hidden; }
-  .row {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 14px 16px; border-bottom: 1px solid var(--divider);
-  }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--divider); }
   .row:last-child { border-bottom: 0; }
   .row .k { font-size: 13px; color: var(--muted); }
   .row .val { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .row .v { font-size: 15px; font-weight: 600; word-break: break-all; text-align: right; }
-  .copy {
-    flex: none; width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer;
-    background: var(--field); color: var(--accent); font-size: 14px; display: grid; place-items: center;
-    transition: background .15s;
-  }
-  .copy:active { background: var(--divider); }
+  .copy { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--field); color: var(--accent); font-size: 14px; display: grid; place-items: center; }
   .hint { margin-top: 18px; font-size: 13px; color: var(--muted); text-align: center; line-height: 1.5; }
   .err { display: none; margin-top: 22px; font-size: 15px; color: #ff3b30; text-align: center; }
 </style>
@@ -107,8 +99,13 @@
 <body>
   <main class="card">
     <div class="icon">📺</div>
-    <h1>Essai gratuit</h1>
-    <p class="lead">2 jours offerts, sans paiement.<br/>Tes accès en quelques secondes.</p>
+    <h1 id="title">Essai gratuit</h1>
+    <p class="lead" id="lead">2 jours offerts, sans paiement.</p>
+
+    <div class="seg" id="seg">
+      <button type="button" data-type="trial" class="active">Essai<span class="s">2 jours · gratuit</span></button>
+      <button type="button" data-type="new">Abonnement<span class="s">12 mois</span></button>
+    </div>
 
     <form id="form">
       <div class="field-label">Pseudo Snapchat</div>
@@ -117,7 +114,8 @@
     </form>
 
     <div class="status" id="status">
-      <div class="spinner"></div>
+      <div id="status-spin"><div class="spinner"></div></div>
+      <div class="status-title" id="status-title" style="display:none">Demande envoyée</div>
       <div class="status-text" id="status-text">Création de ton compte…</div>
     </div>
 
@@ -129,36 +127,41 @@
         <div class="t">C'est prêt</div>
       </div>
       <div class="list">
-        <div class="row">
-          <span class="k">Adresse</span>
-          <span class="val"><span class="v" id="r-url"></span><button class="copy" data-t="r-url" title="Copier">⧉</button></span>
-        </div>
-        <div class="row">
-          <span class="k">Identifiant</span>
-          <span class="val"><span class="v" id="r-login"></span><button class="copy" data-t="r-login" title="Copier">⧉</button></span>
-        </div>
-        <div class="row">
-          <span class="k">Mot de passe</span>
-          <span class="val"><span class="v" id="r-pass"></span><button class="copy" data-t="r-pass" title="Copier">⧉</button></span>
-        </div>
+        <div class="row"><span class="k">Adresse</span><span class="val"><span class="v" id="r-url"></span><button class="copy" data-t="r-url">⧉</button></span></div>
+        <div class="row"><span class="k">Identifiant</span><span class="val"><span class="v" id="r-login"></span><button class="copy" data-t="r-login">⧉</button></span></div>
+        <div class="row"><span class="k">Mot de passe</span><span class="val"><span class="v" id="r-pass"></span><button class="copy" data-t="r-pass">⧉</button></span></div>
       </div>
       <button class="btn secondary" id="copyall">Tout copier</button>
-      <p class="hint">Ajoute ces infos dans ton application IPTV.<br/>Valable 2 jours · une question ? Écris-nous sur Snapchat.</p>
+      <p class="hint">Ajoute ces infos dans ton application IPTV.<br/>Une question ? Écris-nous sur Snapchat.</p>
     </div>
   </main>
 
 <script>
   const $ = (id) => document.getElementById(id);
   const form = $('form'), btn = $('btn'), err = $('err');
-  const result = $('result'), statusBox = $('status'), statusText = $('status-text');
+  const result = $('result'), statusBox = $('status'), statusText = $('status-text'), statusTitle = $('status-title'), statusSpin = $('status-spin');
 
+  let type = 'trial';
+  const COPY = {
+    trial: { title: 'Essai gratuit', lead: '2 jours offerts, sans paiement.', btn: 'Obtenir mon accès' },
+    new:   { title: 'Abonnement 12 mois', lead: 'Accès complet pendant 1 an.', btn: 'Demander mon abonnement' },
+  };
   const waitMsgs = ['Création de ton compte…', 'Configuration de tes chaînes…', 'Presque prêt…', 'Encore quelques secondes…'];
+
+  $('seg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    type = b.dataset.type;
+    [...$('seg').children].forEach((c) => c.classList.toggle('active', c === b));
+    $('title').textContent = COPY[type].title;
+    $('lead').textContent = COPY[type].lead;
+    btn.textContent = COPY[type].btn;
+  });
 
   function showError(msg) {
     statusBox.style.display = 'none';
     err.textContent = msg; err.style.display = 'block';
-    form.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Réessayer';
+    form.style.display = 'block'; $('seg').style.display = 'flex';
+    btn.disabled = false; btn.textContent = COPY[type].btn;
   }
 
   form.addEventListener('submit', async (e) => {
@@ -166,48 +169,62 @@
     err.style.display = 'none';
     btn.disabled = true; btn.textContent = 'Un instant…';
     const pseudo = $('pseudo').value.trim();
-    let id;
+    let id, paid;
     try {
       const res = await fetch('/api/request', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ pseudo }),
+        body: JSON.stringify({ type, pseudo }),
       });
       const data = await res.json();
-      if (res.status === 429) { btn.disabled = false; btn.textContent = 'Obtenir mon accès'; return showError(data.error || 'Patiente un instant avant de réessayer.'); }
+      if (res.status === 429) { btn.disabled = false; btn.textContent = COPY[type].btn; return showError(data.error || 'Patiente un instant.'); }
       if (!res.ok || !data.id) throw new Error();
-      id = data.id;
+      id = data.id; paid = data.paid;
     } catch (_) {
-      btn.disabled = false; btn.textContent = 'Obtenir mon accès';
+      btn.disabled = false; btn.textContent = COPY[type].btn;
       return showError("Impossible d'envoyer la demande. Réessaie.");
     }
 
-    form.style.display = 'none';
+    form.style.display = 'none'; $('seg').style.display = 'none';
     statusBox.style.display = 'block';
-    let mi = 0;
-    const msgTimer = setInterval(() => { mi = (mi + 1) % waitMsgs.length; statusText.textContent = waitMsgs[mi]; }, 4000);
+
+    let msgTimer = null;
+    if (paid) {
+      statusSpin.style.display = 'none';
+      statusTitle.style.display = 'block';
+      statusTitle.textContent = '⏳ Demande envoyée';
+      statusText.innerHTML = "On te contacte sur <b>Snapchat</b> pour le paiement.<br/>Tes accès s'afficheront ici juste après. Garde la page ouverte.";
+    } else {
+      statusSpin.style.display = 'block';
+      let mi = 0;
+      msgTimer = setInterval(() => { mi = (mi + 1) % waitMsgs.length; statusText.textContent = waitMsgs[mi]; }, 4000);
+    }
 
     const start = Date.now();
+    const maxWait = paid ? 30 * 60 * 1000 : 120 * 1000;
     const timer = setInterval(async () => {
-      if (Date.now() - start > 120000) {
-        clearInterval(timer); clearInterval(msgTimer);
-        return showError("C'est plus long que prévu… Écris-nous sur Snapchat, ton essai arrive vite.");
+      if (Date.now() - start > maxWait) {
+        clearInterval(timer); if (msgTimer) clearInterval(msgTimer);
+        return showError("C'est plus long que prévu… Écris-nous sur Snapchat.");
       }
       try {
         const r = await fetch('/api/result/' + id);
         const d = await r.json();
         if (d.status === 'done') {
-          clearInterval(timer); clearInterval(msgTimer);
+          clearInterval(timer); if (msgTimer) clearInterval(msgTimer);
           statusBox.style.display = 'none';
           $('r-url').textContent = d.url;
           $('r-login').textContent = d.login || '(voir avec le vendeur)';
           $('r-pass').textContent = d.password;
           result.style.display = 'block';
         } else if (d.status === 'error') {
-          clearInterval(timer); clearInterval(msgTimer);
+          clearInterval(timer); if (msgTimer) clearInterval(msgTimer);
           showError("La création a échoué. Écris-nous sur Snapchat.");
+        } else if (d.status === 'rejected') {
+          clearInterval(timer); if (msgTimer) clearInterval(msgTimer);
+          showError("Demande non validée. Écris-nous sur Snapchat pour le paiement.");
         }
       } catch (_) {}
-    }, 2500);
+    }, 3000);
   });
 
   function copyText(t, el) {
