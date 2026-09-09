@@ -39,7 +39,7 @@
         method, url: BACKEND + path,
         headers: { 'Content-Type': 'application/json', 'x-token': TOKEN },
         data: body ? JSON.stringify(body) : undefined,
-        onload: (r) => { try { resolve(JSON.parse(r.responseText)); } catch (_) { resolve({}); } },
+        onload: (r) => { try { resolve(JSON.parse(r.responseText)); } catch { resolve({}); } },
         onerror: reject, ontimeout: reject,
       });
     });
@@ -115,7 +115,7 @@
       const edoc = new DOMParser().parseFromString(ehtml, 'text/html');
       login = (edoc.querySelector('input[name="login"]') || {}).value || '';
       if (!login) { const mm = ehtml.match(/name=["']login["'][^>]*value=["']([^"']+)["']/i); if (mm) login = mm[1]; }
-    } catch (_) {}
+    } catch {}
 
     return { login: login.trim(), password, url: CLIENT_URL };
   }
@@ -165,7 +165,7 @@
       } else {
         setBadge('🟢 Auto-comptes actif');
       }
-    } catch (_) {
+    } catch {
       setBadge('🔌 Serveur injoignable…');
     } finally {
       busy = false;
