@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 3000;
 const OFFERS = {
   trial: { label: 'Essai 2 jours', duration: '2 jours', paid: false },
   new: { label: 'Nouveau compte', duration: '12 mois', paid: true },
+  renew: { label: 'Renouvellement', duration: '12 mois', paid: true },
 };
 
 // Anti-abus
@@ -65,9 +66,18 @@ app.post('/api/request', (req, res) => {
   if (!offer) return res.status(400).json({ error: 'Type de demande invalide.' });
 
   const pseudo = String(req.body.pseudo || '').trim().slice(0, 60);
+  // Le renouvellement a besoin de l'identifiant + mot de passe existants du client
+  const login = String(req.body.login || '').trim().slice(0, 80);
+  const password = String(req.body.password || '').trim().slice(0, 120);
+  if (type === 'renew' && (!login || !password)) {
+    return res.status(400).json({ error: 'Identifiant et mot de passe requis pour le renouvellement.' });
+  }
+
   const id = newId();
   jobs.set(id, {
     id, type, pseudo,
+    login: type === 'renew' ? login : undefined,
+    password: type === 'renew' ? password : undefined,
     duration: offer.duration,
     paid: offer.paid,
     status: offer.paid ? 'awaiting_approval' : 'pending',
@@ -96,7 +106,7 @@ app.get('/api/pending', requireToken, (_req, res) => {
     if (j.status === 'pending') {
       j.status = 'processing';
       j.processingAt = Date.now();
-      out.push({ id: j.id, type: j.type, pseudo: j.pseudo, duration: j.duration });
+      out.push({ id: j.id, type: j.type, pseudo: j.pseudo, duration: j.duration, login: j.login, password: j.password });
     }
   }
   res.json({ jobs: out });

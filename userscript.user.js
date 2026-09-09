@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         IPTV - Createur de comptes automatique
 // @namespace    iptv-trial-form
-// @version      0.2
-// @description  Cree les comptes (essai + abonnement) demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
+// @version      0.3
+// @description  Cree/renouvelle les comptes (essai + abonnement + renouvellement) demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
 // @match        https://max.myirtv.net/*
 // @grant        GM_xmlhttpRequest
 // @connect      *
@@ -85,6 +85,7 @@
     throw new Error('durée introuvable: ' + duration);
   }
 
+  // Creation (essai / abonnement) : POST /line/line/insert, login vide -> genere.
   async function createAccount(job) {
     const doc = await loadAddForm();
     const password = genPassword();
@@ -118,6 +119,30 @@
     return { login: login.trim(), password, url: CLIENT_URL };
   }
 
+  // Renouvellement : POST /line/lineexperied/insert avec l'identifiant + mdp existants.
+  async function renewAccount(job) {
+    const doc = await loadAddForm();
+    const bouquets = getBouquets(doc);
+    const nbr = getNbr(doc, job.duration);
+
+    const fd = new FormData();
+    fd.append('login', job.login);
+    fd.append('password', job.password);
+    fd.append('nbr', nbr);
+    fd.append('note', 'renouvellement (' + job.duration + ')');
+    fd.append('bouquets2', bouquets[0]);
+    fd.append('bouquets', JSON.stringify(bouquets));
+
+    const res = await fetch(PANEL + '/line/lineexperied/insert', {
+      method: 'POST', body: fd, credentials: 'include',
+      headers: { 'x-requested-with': 'XMLHttpRequest' },
+    });
+    const data = await res.json();
+    if (!data || !data.success) throw new Error('renouvellement refuse (identifiant/mdp ?)');
+
+    return { login: job.login, password: job.password, url: CLIENT_URL };
+  }
+
   let busy = false;
   async function tick() {
     if (busy) return;
@@ -126,9 +151,9 @@
       const { jobs } = await backend('GET', '/api/pending');
       if (jobs && jobs.length) {
         for (const job of jobs) {
-          setBadge('⏳ ' + (job.duration || '') + ' pour @' + (job.pseudo || '?'));
+          setBadge('⏳ ' + (job.type === 'renew' ? 'renouv. ' + job.login : (job.duration || '') + ' @' + (job.pseudo || '?')));
           try {
-            const acc = await createAccount(job);
+            const acc = job.type === 'renew' ? await renewAccount(job) : await createAccount(job);
             await backend('POST', '/api/result', { id: job.id, ...acc });
             setBadge('✅ Créé : ' + (acc.login || 'ok'));
           } catch (e) {

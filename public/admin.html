@@ -91,7 +91,7 @@
     const d = new Date(ts);
     return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
-  const LABELS = { trial: 'Essai', new: 'Abonnement' };
+  const LABELS = { trial: 'Essai', new: 'Abonnement', renew: 'Renouvellement' };
   const STATES = { pending: 'En cours…', processing: 'Création en cours…', done: 'Créé ✓', error: 'Échec', rejected: 'Refusée' };
 
   function credsHtml(j) {
@@ -110,8 +110,9 @@
         <button class="btn reject" data-reject="${j.id}">Refuser</button>
       </div>` : '';
     const state = !withActions ? `<div class="state ${j.status}">${STATES[j.status] || j.status}</div>` : '';
+    const who = j.type === 'renew' ? ('🔄 ' + (j.login || '?')) : ('@' + (j.pseudo || '?'));
     return `<div class="card">
-      <div class="top"><div class="pseudo">@${j.pseudo || '?'} ${tag}</div><div class="time">${fmtTime(j.createdAt)}</div></div>
+      <div class="top"><div class="pseudo">${who} ${tag}</div><div class="time">${fmtTime(j.createdAt)}</div></div>
       ${actions}${state}${credsHtml(j)}
     </div>`;
   }
