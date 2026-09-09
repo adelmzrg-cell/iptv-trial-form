@@ -17,7 +17,8 @@ const PORT = process.env.PORT || 3000;
 // Offres proposees. `paid: true` => passe par la validation manuelle d'Adel.
 const OFFERS = {
   trial: { label: 'Essai 2 jours', duration: '2 jours', paid: false },
-  new: { label: 'Nouveau compte', duration: '12 mois', paid: true },
+  new1: { label: 'Abonnement 1 mois', duration: '1 mois', paid: true },
+  new: { label: 'Abonnement 12 mois', duration: '12 mois', paid: true },
   renew: { label: 'Renouvellement', duration: '12 mois', paid: true },
 };
 

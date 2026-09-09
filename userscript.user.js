@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IPTV - Createur de comptes automatique
 // @namespace    iptv-trial-form
-// @version      0.3
+// @version      0.4
 // @description  Cree/renouvelle les comptes (essai + abonnement + renouvellement) demandes via le formulaire en ligne, depuis TA session (contourne Cloudflare).
 // @match        https://max.myirtv.net/*
 // @grant        GM_xmlhttpRequest
@@ -76,9 +76,10 @@
     }
     const m = String(duration).toLowerCase().match(/(\d+)\s*(mois|jour|an)/);
     if (temps && m) {
+      // nombre exact (evite que "1 mois" tombe sur "12 mois")
+      const re = new RegExp('(?:^|\\D)' + m[1] + '\\s*' + m[2]);
       for (const o of temps.options) {
-        const t = o.textContent.toLowerCase();
-        if (t.includes(m[1]) && t.includes(m[2])) return o.value;
+        if (re.test(o.textContent.toLowerCase())) return o.value;
       }
     }
     if (/2\s*jours/i.test(duration)) return '6'; // secours essai gratuit

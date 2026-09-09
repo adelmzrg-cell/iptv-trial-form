@@ -32,9 +32,9 @@
 
   .seg { display: flex; gap: 5px; margin-top: 26px; padding: 4px; background: var(--field); border-radius: 14px; }
   .seg button { flex: 1; border: 0; background: transparent; color: var(--text); cursor: pointer;
-    padding: 9px 4px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 9px 3px; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 600;
     letter-spacing: -0.01em; transition: background .15s; line-height: 1.2; }
-  .seg button .s { display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .seg button .s { display: block; font-size: 9px; font-weight: 500; color: var(--muted); margin-top: 2px; }
   .seg button.active { background: var(--accent); }
   .seg button.active .s { color: rgba(255,255,255,.85); }
 
@@ -87,8 +87,9 @@
 
     <div class="seg" id="seg">
       <button type="button" data-type="trial" class="active">Essai<span class="s">2 j · gratuit</span></button>
-      <button type="button" data-type="new">Abonnement<span class="s">12 mois</span></button>
-      <button type="button" data-type="renew">Renouveler<span class="s">12 mois</span></button>
+      <button type="button" data-type="new1">1 mois<span class="s">abonnement</span></button>
+      <button type="button" data-type="new">12 mois<span class="s">abonnement</span></button>
+      <button type="button" data-type="renew">Renouv.<span class="s">12 mois</span></button>
     </div>
 
     <form id="form">
@@ -136,6 +137,7 @@
   let type = 'trial';
   const COPY = {
     trial: { title: 'Essai gratuit', lead: '2 jours offerts, sans paiement.', btn: 'Obtenir mon accès', renew: false },
+    new1:  { title: 'Abonnement 1 mois', lead: 'Accès complet pendant 1 mois.', btn: 'Demander mon abonnement', renew: false },
     new:   { title: 'Abonnement 12 mois', lead: 'Accès complet pendant 1 an.', btn: 'Demander mon abonnement', renew: false },
     renew: { title: 'Renouvellement', lead: 'Prolonge ton compte de 12 mois.', btn: 'Demander le renouvellement', renew: true },
   };
