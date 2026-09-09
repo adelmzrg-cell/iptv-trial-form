@@ -2,79 +2,135 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#0b1220" />
-<title>Essai gratuit IPTV — 2 jours</title>
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+<title>Essai gratuit IPTV</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>" />
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
+  :root {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --accent: #0071e3;
+    --accent-press: #0060c0;
+    --field: #f5f5f7;
+    --field-border: #d2d2d7;
+    --divider: #ececee;
+    --shadow: 0 10px 40px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --text: #f5f5f7;
+      --muted: #98989d;
+      --accent: #0a84ff;
+      --accent-press: #339cff;
+      --field: #2c2c2e;
+      --field-border: #3a3a3c;
+      --divider: #2c2c2e;
+      --shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0; min-height: 100dvh; display: flex; align-items: center; justify-content: center;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    background: radial-gradient(1100px 550px at 50% -10%, #1e293b, #0b1220 62%); color: #e5e7eb;
-    padding: 20px; -webkit-font-smoothing: antialiased;
+    min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 24px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   }
   .card {
-    width: 100%; max-width: 430px; background: #111827; border: 1px solid #1f2937;
-    border-radius: 20px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,.5);
+    width: 100%; max-width: 400px; background: var(--card);
+    border-radius: 24px; padding: 40px 32px; box-shadow: var(--shadow);
+    text-align: center;
   }
-  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-  .brand .logo { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center;
-    background: linear-gradient(180deg,#22c55e,#16a34a); font-size: 22px; }
-  .brand .name { font-weight: 800; font-size: 15px; letter-spacing: .3px; }
-  h1 { font-size: 23px; margin: 0 0 6px; line-height: 1.2; }
-  p.sub { margin: 0 0 22px; color: #9ca3af; font-size: 14px; }
-  .badge2 { display:inline-block; font-size:12px; font-weight:700; color:#04140a;
-    background:#34d399; padding:3px 9px; border-radius:999px; margin-bottom:14px; }
-  label { display: block; font-size: 13px; color: #cbd5e1; margin: 0 0 7px; }
+  .icon {
+    width: 68px; height: 68px; margin: 0 auto 24px; border-radius: 18px;
+    display: grid; place-items: center; font-size: 36px;
+    background: linear-gradient(160deg, #2a2a2e, #0a0a0c);
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  }
+  @media (prefers-color-scheme: light) {
+    .icon { background: linear-gradient(160deg, #fafafa, #ececee); }
+  }
+  h1 {
+    font-size: 30px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.1;
+  }
+  .lead {
+    margin-top: 10px; font-size: 17px; color: var(--muted); letter-spacing: -0.01em;
+  }
+  form { margin-top: 30px; text-align: left; }
+  .field-label { font-size: 13px; font-weight: 600; color: var(--muted); margin: 0 4px 8px; letter-spacing: -0.01em; }
   input[type=text] {
-    width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #374151;
-    background: #0b1220; color: #fff; font-size: 16px; outline: none;
+    width: 100%; padding: 15px 16px; font-size: 17px; color: var(--text);
+    background: var(--field); border: 1px solid transparent; border-radius: 14px;
+    outline: none; transition: border-color .15s, background .15s;
+    font-family: inherit;
   }
-  input[type=text]:focus { border-color: #22c55e; }
+  input[type=text]::placeholder { color: var(--muted); opacity: .7; }
+  input[type=text]:focus { border-color: var(--accent); background: var(--card); }
   .btn {
-    margin-top: 18px; width: 100%; padding: 15px; border: 0; border-radius: 12px;
-    background: linear-gradient(180deg,#22c55e,#16a34a); color: #04140a; font-weight: 800;
-    font-size: 16px; cursor: pointer; transition: transform .05s;
+    width: 100%; margin-top: 22px; padding: 15px 20px; font-size: 17px; font-weight: 600;
+    color: #fff; background: var(--accent); border: 0; border-radius: 980px; cursor: pointer;
+    letter-spacing: -0.01em; transition: background .15s, transform .1s, opacity .15s;
+    font-family: inherit;
   }
-  .btn:active { transform: scale(.99); }
-  .btn:disabled { opacity: .6; cursor: default; }
-  .status { margin-top: 18px; text-align: center; display: none; }
-  .spinner { width: 30px; height: 30px; border: 3px solid #334155; border-top-color: #22c55e;
-    border-radius: 50%; animation: spin 1s linear infinite; margin: 6px auto 12px; }
+  .btn:hover { background: var(--accent-press); }
+  .btn:active { transform: scale(.985); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.secondary { background: var(--field); color: var(--accent); margin-top: 10px; }
+  .btn.secondary:hover { background: var(--divider); }
+
+  .status { margin-top: 30px; display: none; }
+  .spinner {
+    width: 30px; height: 30px; margin: 0 auto 16px; border-radius: 50%;
+    border: 3px solid var(--divider); border-top-color: var(--accent);
+    animation: spin .9s linear infinite;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .status-text { font-size: 14px; color: #cbd5e1; }
-  .result { margin-top: 22px; display: none; }
-  .ok { color: #34d399; font-size: 14px; font-weight: 700; margin-bottom: 12px; text-align:center; }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    padding: 13px 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 12px; margin-bottom: 10px; }
-  .row .k { color: #9ca3af; font-size: 12px; }
-  .row .v { font-weight: 700; word-break: break-all; text-align: right; font-size: 15px; }
-  .copy { background: #1f2937; color: #e5e7eb; border-radius: 8px; padding: 7px 11px; font-size: 12px;
-    cursor: pointer; border: 0; white-space: nowrap; }
-  .copy:active { background:#374151; }
-  .btn.copyall { margin-top: 8px; background: #1f2937; color: #e5e7eb; }
-  .err { color: #f87171; margin-top: 16px; font-size: 14px; display: none; text-align:center; }
-  .foot { margin-top: 18px; font-size: 12px; color: #6b7280; text-align: center; line-height:1.5; }
+  .status-text { font-size: 15px; color: var(--muted); }
+
+  .result { margin-top: 30px; display: none; text-align: left; }
+  .result-head { text-align: center; margin-bottom: 22px; }
+  .check {
+    width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 50%;
+    background: #34c759; display: grid; place-items: center; color: #fff; font-size: 28px;
+  }
+  .result-head .t { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+  .list { border: 1px solid var(--divider); border-radius: 16px; overflow: hidden; }
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 16px; border-bottom: 1px solid var(--divider);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .k { font-size: 13px; color: var(--muted); }
+  .row .val { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .row .v { font-size: 15px; font-weight: 600; word-break: break-all; text-align: right; }
+  .copy {
+    flex: none; width: 30px; height: 30px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--field); color: var(--accent); font-size: 14px; display: grid; place-items: center;
+    transition: background .15s;
+  }
+  .copy:active { background: var(--divider); }
+  .hint { margin-top: 18px; font-size: 13px; color: var(--muted); text-align: center; line-height: 1.5; }
+  .err { display: none; margin-top: 22px; font-size: 15px; color: #ff3b30; text-align: center; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">
-      <div class="logo">📺</div>
-      <div class="name">MON IPTV</div>
-    </div>
-
-    <span class="badge2">100% GRATUIT</span>
-    <h1>Ton essai de 2 jours</h1>
-    <p class="sub">Reçois tes accès en quelques secondes. Sans engagement, sans paiement.</p>
+  <main class="card">
+    <div class="icon">📺</div>
+    <h1>Essai gratuit</h1>
+    <p class="lead">2 jours offerts, sans paiement.<br/>Tes accès en quelques secondes.</p>
 
     <form id="form">
-      <label for="pseudo">Ton pseudo Snapchat</label>
-      <input id="pseudo" name="pseudo" type="text" placeholder="@ton_pseudo" autocomplete="off" required maxlength="60" />
-      <button id="btn" class="btn" type="submit">🎁 Obtenir mon accès</button>
+      <div class="field-label">Pseudo Snapchat</div>
+      <input id="pseudo" name="pseudo" type="text" placeholder="@ton_pseudo" autocomplete="off" autocapitalize="off" required maxlength="60" />
+      <button id="btn" class="btn" type="submit">Obtenir mon accès</button>
     </form>
 
     <div class="status" id="status">
@@ -85,38 +141,47 @@
     <div class="err" id="err"></div>
 
     <div class="result" id="result">
-      <div class="ok">✅ Ton compte est prêt !</div>
-      <div class="row"><span class="k">Adresse (URL)</span><span class="v" id="r-url"></span><button class="copy" data-t="r-url">copier</button></div>
-      <div class="row"><span class="k">Identifiant</span><span class="v" id="r-login"></span><button class="copy" data-t="r-login">copier</button></div>
-      <div class="row"><span class="k">Mot de passe</span><span class="v" id="r-pass"></span><button class="copy" data-t="r-pass">copier</button></div>
-      <button class="btn copyall" id="copyall">📋 Tout copier</button>
-      <div class="foot">Ajoute ces infos dans ton application IPTV (Smarters, IBO, etc.).<br/>Essai valable 2 jours. Une question ? Écris-nous sur Snapchat 👻</div>
+      <div class="result-head">
+        <div class="check">✓</div>
+        <div class="t">C'est prêt</div>
+      </div>
+      <div class="list">
+        <div class="row">
+          <span class="k">Adresse</span>
+          <span class="val"><span class="v" id="r-url"></span><button class="copy" data-t="r-url" title="Copier">⧉</button></span>
+        </div>
+        <div class="row">
+          <span class="k">Identifiant</span>
+          <span class="val"><span class="v" id="r-login"></span><button class="copy" data-t="r-login" title="Copier">⧉</button></span>
+        </div>
+        <div class="row">
+          <span class="k">Mot de passe</span>
+          <span class="val"><span class="v" id="r-pass"></span><button class="copy" data-t="r-pass" title="Copier">⧉</button></span>
+        </div>
+      </div>
+      <button class="btn secondary" id="copyall">Tout copier</button>
+      <p class="hint">Ajoute ces infos dans ton application IPTV.<br/>Valable 2 jours · une question ? Écris-nous sur Snapchat.</p>
     </div>
-  </div>
+  </main>
 
 <script>
   const $ = (id) => document.getElementById(id);
   const form = $('form'), btn = $('btn'), err = $('err');
   const result = $('result'), statusBox = $('status'), statusText = $('status-text');
 
-  const waitMsgs = [
-    'Création de ton compte…',
-    'Configuration de tes chaînes…',
-    'Presque prêt…',
-    'Encore quelques secondes…',
-  ];
+  const waitMsgs = ['Création de ton compte…', 'Configuration de tes chaînes…', 'Presque prêt…', 'Encore quelques secondes…'];
 
   function showError(msg) {
     statusBox.style.display = 'none';
     err.textContent = msg; err.style.display = 'block';
     form.style.display = 'block';
-    btn.disabled = false; btn.textContent = '🎁 Réessayer';
+    btn.disabled = false; btn.textContent = 'Réessayer';
   }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     err.style.display = 'none';
-    btn.disabled = true;
+    btn.disabled = true; btn.textContent = 'Un instant…';
     const pseudo = $('pseudo').value.trim();
     let id;
     try {
@@ -125,10 +190,11 @@
         body: JSON.stringify({ pseudo }),
       });
       const data = await res.json();
-      if (res.status === 429) return showError(data.error || 'Trop de demandes, patiente un instant.');
+      if (res.status === 429) { btn.disabled = false; btn.textContent = 'Obtenir mon accès'; return showError(data.error || 'Patiente un instant avant de réessayer.'); }
       if (!res.ok || !data.id) throw new Error();
       id = data.id;
     } catch (_) {
+      btn.disabled = false; btn.textContent = 'Obtenir mon accès';
       return showError("Impossible d'envoyer la demande. Réessaie.");
     }
 
@@ -163,14 +229,16 @@
 
   function copyText(t, el) {
     navigator.clipboard?.writeText(t);
-    const old = el.textContent; el.textContent = 'copié ✓';
-    setTimeout(() => (el.textContent = old), 1500);
+    const old = el.textContent; el.textContent = '✓';
+    setTimeout(() => (el.textContent = old), 1400);
   }
   document.querySelectorAll('.copy').forEach((c) =>
     c.addEventListener('click', () => copyText($(c.dataset.t).textContent, c)));
   $('copyall').addEventListener('click', () => {
     const txt = `URL: ${$('r-url').textContent}\nIdentifiant: ${$('r-login').textContent}\nMot de passe: ${$('r-pass').textContent}`;
     copyText(txt, $('copyall'));
+    $('copyall').textContent = 'Copié ✓';
+    setTimeout(() => ($('copyall').textContent = 'Tout copier'), 1400);
   });
 </script>
 </body>
