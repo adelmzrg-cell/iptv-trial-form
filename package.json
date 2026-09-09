@@ -1,0 +1,13 @@
+{
+  "name": "iptv-trial-form",
+  "version": "0.1.0",
+  "description": "Formulaire en ligne + file d'attente : cree des comptes d'essai IPTV via un userscript dans le navigateur du revendeur (contourne Cloudflare).",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}

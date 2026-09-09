@@ -1,0 +1,4 @@
+node_modules/
+.env
+userscript.local.user.js
+*.log
